@@ -3,6 +3,8 @@ package org.neo4j.sdnlegacy.movie;
 import org.neo4j.ogm.annotation.Id;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Version;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author Gerrit Meier
@@ -13,11 +15,30 @@ public class MovieEntity {
 	@Id
 	private String title;
 
-	private String tagline;
+	@Convert(Tagline.TaglineConverter.class)
+	private Tagline tagline;
 
 	@Property("released")
 	private Integer yearOfRelease;
 
+	@Version
+	private Long version;
+
+	public MovieEntity() {}
+
+	public MovieEntity(String title, String tagline, Integer yearOfRelease) {
+		this.title = title;
+		this.tagline = new Tagline(tagline);
+		this.yearOfRelease = yearOfRelease;
+	}
+
+	public Long getVersion() {
+		return version;
+	}
+
+	public void setVersion(Long version) {
+		this.version = version;
+	}
 
 	public String getTitle() {
 		return title;
@@ -27,11 +48,11 @@ public class MovieEntity {
 		this.title = title;
 	}
 
-	public String getTagline() {
+	public Tagline getTagline() {
 		return tagline;
 	}
 
-	public void setTagline(String tagline) {
+	public void setTagline(Tagline tagline) {
 		this.tagline = tagline;
 	}
 
