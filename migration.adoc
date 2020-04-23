@@ -1,19 +1,64 @@
 = Migration from SDN/OGM to SDN/RX
 
-== Features not tested because we do not consider adapting them
+== Features not migrated because we do not consider adapting them
 
 * Auto Index
++
+There is no benefit in auto generating indexes/constraint from within the mapping framework.
+This should be done directly on the database side.
+
+Consider to use https://github.com/michael-simons/neo4j-migrations for even more powerful database versioning.
 
 == Features with different behavior
 
+* `RelationshipEntity` gets replaced by `RelationshipProperties`
++
+As a intended consequence a relationship cannot be the access point of a repository or template anymore.
+
 == Detailed migrations
 
-=== Id
+=== Dependency
 
-=== Conversion
+Alter dependencies: Substitute SDN/OGM with SDN/RX
 
-=== Node
+=== NodeEntity
+
+Correct imports in the entities:
+
+* Same types
+    ** `org.neo4j.ogm.annotation.Id` -> `org.neo4j.springframework.data.core.schema.Id`
+    ** `org.neo4j.ogm.annotation.GeneratedValue` -> `org.neo4j.springframework.data.core.schema.GeneratedValue`
+    ** `org.neo4j.ogm.annotation.Property` -> `org.neo4j.springframework.data.core.schema.Property`
+    ** `org.neo4j.ogm.annotation.Version` -> `org.springframework.data.annotation.Version`
+    ** `org.neo4j.ogm.annotation.Relationship` -> `org.neo4j.springframework.data.core.schema.Relationship`
+* Other types
+    ** `org.neo4j.ogm.annotation.typeconversion.Convert` -> no replacement found
+    ** `org.neo4j.ogm.annotation.NodeEntity` -> `org.neo4j.springframework.data.core.schema.Node`
 
 === RelationshipEntity
 
+Rewrite `RelationshipEntity` to `RelationshipProperty`.
+Put `Map<DomainObject, RelationshipProperty>` as a replacement of the relationship type into the domain class.
 
+== Repositories
+
+Correct imports in repositories of same classes like `Neo4jRepository` / `@Query`
+
+=== Usage of Neo4j-OGM's `SessionFactory` or `Session`
+
+Replace `SessionFactory` with direct Java driver access, `Neo4jClient` or `Neo4jTemplate`.
+
+=== _application.properties_
+Use driver starter properties instead of the SDN/Neo4j-OGM properties:
+
+```
+# old
+#spring.data.neo4j.uri=bolt://localhost:7687
+#spring.data.neo4j.username=neo4j
+#spring.data.neo4j.password=secret
+
+# new
+org.neo4j.driver.uri=bolt://localhost:7687
+org.neo4j.driver.authentication.username=neo4j
+org.neo4j.driver.authentication.password=secret
+```
