@@ -1,22 +1,24 @@
 package org.neo4j.sdnlegacy.movie;
 
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Property;
-import org.neo4j.ogm.annotation.Version;
-import org.neo4j.ogm.annotation.typeconversion.Convert;
+import org.neo4j.springframework.data.core.schema.Id;
+import org.neo4j.springframework.data.core.schema.Node;
+import org.neo4j.springframework.data.core.schema.Property;
+import org.springframework.data.annotation.Version;
 
 /**
  * @author Gerrit Meier
  */
-@NodeEntity("Movie")
+@Node("Movie")
 public class MovieEntity {
 
 	@Id
 	private String title;
 
-	@Convert(Tagline.TaglineConverter.class)
-	private Tagline tagline;
+	// Currently there is no custom type field conversion in SDN/RX
+	// or I forgot about this 🤷‍
+	// @Convert(Tagline.TaglineConverter.class)
+	//private Tagline tagline;
+	private String tagline;
 
 	@Property("released")
 	private Integer yearOfRelease;
@@ -28,7 +30,7 @@ public class MovieEntity {
 
 	public MovieEntity(String title, String tagline, Integer yearOfRelease) {
 		this.title = title;
-		this.tagline = new Tagline(tagline);
+		this.tagline = tagline;
 		this.yearOfRelease = yearOfRelease;
 	}
 
@@ -48,11 +50,11 @@ public class MovieEntity {
 		this.title = title;
 	}
 
-	public Tagline getTagline() {
+	public String getTagline() {
 		return tagline;
 	}
 
-	public void setTagline(Tagline tagline) {
+	public void setTagline(String tagline) {
 		this.tagline = tagline;
 	}
 

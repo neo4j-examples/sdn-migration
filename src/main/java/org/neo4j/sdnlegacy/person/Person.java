@@ -2,16 +2,16 @@ package org.neo4j.sdnlegacy.person;
 
 import java.util.List;
 
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
+import org.neo4j.springframework.data.core.schema.GeneratedValue;
+import org.neo4j.springframework.data.core.schema.Id;
+import org.neo4j.springframework.data.core.schema.Node;
+import org.neo4j.springframework.data.core.schema.Relationship;
 
 /**
  * @author Gerrit Meier
  */
-@NodeEntity
+@Node(primaryLabel = "Person")
 public class Person {
 
 	@Id
