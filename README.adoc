@@ -1,0 +1,6 @@
+== Migrate SDN/OGM application to SDN/RX and beyond
+
+Steps for migration to SDN/RX and a collection of unsupported features or yet missing implementations in migration.adoc.
+
+Todo next:
+Moving from SDN/RX imperative to SDN/RX reactive.
