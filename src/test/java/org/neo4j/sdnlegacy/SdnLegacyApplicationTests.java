@@ -6,18 +6,21 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.Session;
 import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
+import org.neo4j.springframework.data.core.Neo4jClient;
+import org.neo4j.springframework.data.core.Neo4jTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -25,13 +28,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 class SdnLegacyApplicationTests {
 
 	@Autowired
+	private Driver driver;
+
+	@Autowired
+	private Neo4jClient neo4jClient;
+
+	@Autowired
+	private Neo4jTemplate neo4jTemplate;
+
+	@Autowired
 	private MovieRepository movieRepository;
 
 	@Autowired
 	private PersonRepository personRepository;
-
-	@Autowired
-	private SessionFactory sessionFactory;
 
 	@Nested
 	@DisplayName("Movie Repository")
@@ -39,12 +48,12 @@ class SdnLegacyApplicationTests {
 
 		@BeforeEach
 		void setup() throws IOException {
-			try (BufferedReader moviesReader = new BufferedReader(
-				new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")))) {
-				Session session = sessionFactory.openSession();
-				session.query("MATCH (n) DETACH DELETE n", emptyMap());
+			try (BufferedReader moviesReader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")));
+				Session session = driver.session()) {
+
+				session.run("MATCH (n) DETACH DELETE n", emptyMap());
 				String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
-				session.query(moviesCypher, emptyMap());
+				session.run(moviesCypher, emptyMap());
 			}
 		}
 
@@ -93,8 +102,8 @@ class SdnLegacyApplicationTests {
 			MovieEntity entity = new MovieEntity("MyMovie", "best catchy tagline ever", 2020);
 			movieRepository.save(entity);
 
-			MovieEntity loadedMovie = sessionFactory.openSession().load(MovieEntity.class, "MyMovie");
-			assertThat(loadedMovie).isNotNull();
+			Optional<MovieEntity> loadedMovie = neo4jTemplate.findById("MyMovie", MovieEntity.class);
+			assertThat(loadedMovie).isPresent();
 		}
 
 		@Test
