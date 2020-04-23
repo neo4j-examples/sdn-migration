@@ -1,6 +1,7 @@
 package org.neo4j.sdnlegacy.person;
 
 import java.util.List;
+import java.util.Map;
 
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.springframework.data.core.schema.GeneratedValue;
@@ -29,7 +30,7 @@ public class Person {
 	List<MovieEntity> actedInMovies;
 
 	@Relationship("REVIEWED")
-	List<ReviewRelationship> reviewedMovies;
+	Map<MovieEntity, ReviewRelationship> reviewedMovies;
 
 	@Relationship("PRODUCED")
 	List<MovieEntity> producedMovies;
@@ -74,11 +75,11 @@ public class Person {
 		this.actedInMovies = actedInMovies;
 	}
 
-	public List<ReviewRelationship> getReviewedMovies() {
+	public Map<MovieEntity, ReviewRelationship> getReviewedMovies() {
 		return reviewedMovies;
 	}
 
-	public void setReviewedMovies(List<ReviewRelationship> reviewedMovies) {
+	public void setReviewedMovies(Map<MovieEntity, ReviewRelationship> reviewedMovies) {
 		this.reviewedMovies = reviewedMovies;
 	}
 
