@@ -1,0 +1,19 @@
+= Migration from SDN/OGM to SDN/RX
+
+== Features not tested because we do not consider adapting them
+
+* Auto Index
+
+== Features with different behavior
+
+== Detailed migrations
+
+=== Id
+
+=== Conversion
+
+=== Node
+
+=== RelationshipEntity
+
+
