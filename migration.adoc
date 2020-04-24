@@ -62,3 +62,21 @@ org.neo4j.driver.uri=bolt://localhost:7687
 org.neo4j.driver.authentication.username=neo4j
 org.neo4j.driver.authentication.password=secret
 ```
+
+== What is missing / limited supported
+
+=== Conversion of query parameters
+
+In SDN/OGM and SDN/RX query method parameters for custom queries will get into the parameter list despite their usage 
+in the Spring Expression language placeholder because it cannot be checked if this is the only place they got used.
+If this parameter is an (arbitrary value holder) object, it did not fail in SDN/OGM but does in SDN/RX because the latter tries to convert everything to Neo4j Java driver compatible values but fails.
+We should consider just ignore "complex" types in those parameter lists or bring a conversion in place but this might confuse the use
+because she/he does not know why a parameter that is only supposed to work in SpEl needs conversion at all.
+
+=== Custom conversion of properties
+
+Or I am just blind ;)
+
+=== Query for entity with relationship properties' property
+
+This does not work due to the fact that we end up with a `Map` and cannot make the framework focus on the key type in this case.
