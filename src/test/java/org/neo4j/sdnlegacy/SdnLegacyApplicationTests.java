@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
+import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
@@ -92,11 +94,8 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void findMoviesByActorsSpElSearchObjectPlaceholder() {
-			// This fails because the Actor parameter does not get converted to a Neo4j compatible value.
-			// It will get used perfectly fine in the SpEl expression. Non convertible types (known types) should maybe
-			// get ignored to stay as parameters in the "raw" parameter list for the driver.
-			//assertThat(movieRepository.findMoviesByActorNameWithSpElSearchObjectPlaceholder(new Actor("Emil Eifrem")).get(0))
-			//	.hasFieldOrPropertyWithValue("title", "The Matrix");
+			assertThat(movieRepository.findMoviesByActorNameWithSpElSearchObjectPlaceholder(new Actor("Emil Eifrem")).get(0))
+				.hasFieldOrPropertyWithValue("title", "The Matrix");
 		}
 
 		@Test

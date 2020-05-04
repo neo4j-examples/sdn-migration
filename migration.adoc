@@ -32,7 +32,7 @@ Correct imports in the entities:
     ** `org.neo4j.ogm.annotation.Version` -> `org.springframework.data.annotation.Version`
     ** `org.neo4j.ogm.annotation.Relationship` -> `org.neo4j.springframework.data.core.schema.Relationship`
 * Other types
-    ** `org.neo4j.ogm.annotation.typeconversion.Convert` -> no replacement found
+    ** `org.neo4j.ogm.annotation.typeconversion.Convert` -> implementation of `GenericConverter` as a global converter
     ** `org.neo4j.ogm.annotation.NodeEntity` -> `org.neo4j.springframework.data.core.schema.Node`
 
 === RelationshipEntity
@@ -64,18 +64,6 @@ org.neo4j.driver.authentication.password=secret
 ```
 
 == What is missing / limited supported
-
-=== Conversion of query parameters
-
-In SDN/OGM and SDN/RX query method parameters for custom queries will get into the parameter list despite their usage 
-in the Spring Expression language placeholder because it cannot be checked if this is the only place they got used.
-If this parameter is an (arbitrary value holder) object, it did not fail in SDN/OGM but does in SDN/RX because the latter tries to convert everything to Neo4j Java driver compatible values but fails.
-We should consider just ignore "complex" types in those parameter lists or bring a conversion in place but this might confuse the use
-because she/he does not know why a parameter that is only supposed to work in SpEl needs conversion at all.
-
-=== Custom conversion of properties
-
-Or I am just blind ;)
 
 === Query for entity with relationship properties' property
 

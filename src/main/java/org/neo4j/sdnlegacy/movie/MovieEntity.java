@@ -14,11 +14,7 @@ public class MovieEntity {
 	@Id
 	private String title;
 
-	// Currently there is no custom type field conversion in SDN/RX
-	// or I forgot about this 🤷‍
-	// @Convert(Tagline.TaglineConverter.class)
-	//private Tagline tagline;
-	private String tagline;
+	private Tagline tagline;
 
 	@Property("released")
 	private Integer yearOfRelease;
@@ -30,7 +26,7 @@ public class MovieEntity {
 
 	public MovieEntity(String title, String tagline, Integer yearOfRelease) {
 		this.title = title;
-		this.tagline = tagline;
+		this.tagline = Tagline.of(tagline);
 		this.yearOfRelease = yearOfRelease;
 	}
 
@@ -50,11 +46,11 @@ public class MovieEntity {
 		this.title = title;
 	}
 
-	public String getTagline() {
+	public Tagline getTagline() {
 		return tagline;
 	}
 
-	public void setTagline(String tagline) {
+	public void setTagline(Tagline tagline) {
 		this.tagline = tagline;
 	}
 
