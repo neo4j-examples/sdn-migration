@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,12 +19,12 @@ import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
+import org.neo4j.springframework.boot.test.autoconfigure.data.DataNeo4jTest;
 import org.neo4j.springframework.data.core.Neo4jClient;
 import org.neo4j.springframework.data.core.Neo4jTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@DataNeo4jTest
 class SdnLegacyApplicationTests {
 
 	@Autowired
@@ -43,20 +42,20 @@ class SdnLegacyApplicationTests {
 	@Autowired
 	private PersonRepository personRepository;
 
+	@BeforeEach
+	void setup() throws IOException {
+		try (BufferedReader moviesReader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")));
+			Session session = driver.session()) {
+
+			session.run("MATCH (n) DETACH DELETE n", emptyMap());
+			String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
+			session.run(moviesCypher, emptyMap());
+		}
+	}
+
 	@Nested
 	@DisplayName("Movie Repository")
 	class MovieRepositoryTests {
-
-		@BeforeEach
-		void setup() throws IOException {
-			try (BufferedReader moviesReader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")));
-				Session session = driver.session()) {
-
-				session.run("MATCH (n) DETACH DELETE n", emptyMap());
-				String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
-				session.run(moviesCypher, emptyMap());
-			}
-		}
 
 		@Test
 		void findsAllMovies() {
