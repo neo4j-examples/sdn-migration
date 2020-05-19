@@ -1,17 +1,18 @@
 package org.neo4j.sdnlegacy.person;
 
 import java.util.List;
+import java.util.Map;
 
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
+import org.neo4j.springframework.data.core.schema.GeneratedValue;
+import org.neo4j.springframework.data.core.schema.Id;
+import org.neo4j.springframework.data.core.schema.Node;
+import org.neo4j.springframework.data.core.schema.Relationship;
 
 /**
  * @author Gerrit Meier
  */
-@NodeEntity
+@Node(primaryLabel = "Person")
 public class Person {
 
 	@Id
@@ -29,7 +30,7 @@ public class Person {
 	List<MovieEntity> actedInMovies;
 
 	@Relationship("REVIEWED")
-	List<ReviewRelationship> reviewedMovies;
+	Map<MovieEntity, ReviewRelationship> reviewedMovies;
 
 	@Relationship("PRODUCED")
 	List<MovieEntity> producedMovies;
@@ -74,11 +75,11 @@ public class Person {
 		this.actedInMovies = actedInMovies;
 	}
 
-	public List<ReviewRelationship> getReviewedMovies() {
+	public Map<MovieEntity, ReviewRelationship> getReviewedMovies() {
 		return reviewedMovies;
 	}
 
-	public void setReviewedMovies(List<ReviewRelationship> reviewedMovies) {
+	public void setReviewedMovies(Map<MovieEntity, ReviewRelationship> reviewedMovies) {
 		this.reviewedMovies = reviewedMovies;
 	}
 
