@@ -2,8 +2,8 @@ package org.neo4j.sdnlegacy.movie;
 
 import java.util.List;
 
-import org.neo4j.springframework.data.repository.Neo4jRepository;
-import org.neo4j.springframework.data.repository.query.Query;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
@@ -27,6 +27,5 @@ public interface MovieRepository extends Neo4jRepository<MovieEntity, String> {
 
 	@Query("MATCH (m:Movie)<-[:ACTED_IN]-(p:Person) WHERE p.name = :#{#actor.name} RETURN m")
 	List<MovieEntity> findMoviesByActorNameWithSpElSearchObjectPlaceholder(@Param("actor") Actor actor);
-
 
 }

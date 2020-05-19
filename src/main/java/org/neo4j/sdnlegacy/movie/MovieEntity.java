@@ -1,19 +1,21 @@
 package org.neo4j.sdnlegacy.movie;
 
-import org.neo4j.springframework.data.core.schema.Id;
-import org.neo4j.springframework.data.core.schema.Node;
-import org.neo4j.springframework.data.core.schema.Property;
-import org.springframework.data.annotation.Version;
+import org.neo4j.ogm.annotation.Id;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Property;
+import org.neo4j.ogm.annotation.Version;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author Gerrit Meier
  */
-@Node("Movie")
+@NodeEntity("Movie")
 public class MovieEntity {
 
 	@Id
 	private String title;
 
+	@Convert(Tagline.TaglineConverter.class)
 	private Tagline tagline;
 
 	@Property("released")
@@ -26,7 +28,7 @@ public class MovieEntity {
 
 	public MovieEntity(String title, String tagline, Integer yearOfRelease) {
 		this.title = title;
-		this.tagline = Tagline.of(tagline);
+		this.tagline = new Tagline(tagline);
 		this.yearOfRelease = yearOfRelease;
 	}
 
@@ -65,9 +67,9 @@ public class MovieEntity {
 	@Override
 	public String toString() {
 		return "MovieEntity{" +
-			"title='" + title + '\'' +
-			", tagline='" + tagline + '\'' +
-			", yearOfRelease=" + yearOfRelease +
-			'}';
+				"title='" + title + '\'' +
+				", tagline='" + tagline + '\'' +
+				", yearOfRelease=" + yearOfRelease +
+				'}';
 	}
 }

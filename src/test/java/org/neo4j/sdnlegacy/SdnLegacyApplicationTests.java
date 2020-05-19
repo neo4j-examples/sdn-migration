@@ -6,35 +6,23 @@ import static org.assertj.core.api.Assertions.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.neo4j.driver.Driver;
-import org.neo4j.driver.Session;
+import org.neo4j.ogm.session.Session;
+import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
-import org.neo4j.springframework.boot.test.autoconfigure.data.DataNeo4jTest;
-import org.neo4j.springframework.data.core.Neo4jClient;
-import org.neo4j.springframework.data.core.Neo4jTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@DataNeo4jTest
+@SpringBootTest
 class SdnLegacyApplicationTests {
-
-	@Autowired
-	private Driver driver;
-
-	@Autowired
-	private Neo4jClient neo4jClient;
-
-	@Autowired
-	private Neo4jTemplate neo4jTemplate;
 
 	@Autowired
 	private MovieRepository movieRepository;
@@ -42,20 +30,23 @@ class SdnLegacyApplicationTests {
 	@Autowired
 	private PersonRepository personRepository;
 
-	@BeforeEach
-	void setup() throws IOException {
-		try (BufferedReader moviesReader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")));
-			Session session = driver.session()) {
-
-			session.run("MATCH (n) DETACH DELETE n", emptyMap());
-			String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
-			session.run(moviesCypher, emptyMap());
-		}
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@Nested
 	@DisplayName("Movie Repository")
 	class MovieRepositoryTests {
+
+		@BeforeEach
+		void setup() throws IOException {
+			try (BufferedReader moviesReader = new BufferedReader(
+					new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")))) {
+				Session session = sessionFactory.openSession();
+				session.query("MATCH (n) DETACH DELETE n", emptyMap());
+				String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
+				session.query(moviesCypher, emptyMap());
+			}
+		}
 
 		@Test
 		void findsAllMovies() {
@@ -70,31 +61,31 @@ class SdnLegacyApplicationTests {
 		@Test
 		void findMoviesByActorsCypherPlaceholder() {
 			assertThat(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
 		}
 
 		@Test
 		void findMoviesByActorsSpElIndexPlaceholder() {
 			assertThat(movieRepository.findMoviesByActorNameWithSpElIndexPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
 		}
 
 		@Test
 		void findMoviesByActorsSpElIndexColonPlaceholder() {
 			assertThat(movieRepository.findMoviesByActorNameWithSpElIndexColonPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
 		}
 
 		@Test
 		void findMoviesByActorsSpElNamedPlaceholder() {
 			assertThat(movieRepository.findMoviesByActorNameWithSpElNamedPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
 		}
 
 		@Test
 		void findMoviesByActorsSpElSearchObjectPlaceholder() {
 			assertThat(movieRepository.findMoviesByActorNameWithSpElSearchObjectPlaceholder(new Actor("Emil Eifrem")).get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
 		}
 
 		@Test
@@ -102,14 +93,14 @@ class SdnLegacyApplicationTests {
 			MovieEntity entity = new MovieEntity("MyMovie", "best catchy tagline ever", 2020);
 			movieRepository.save(entity);
 
-			Optional<MovieEntity> loadedMovie = neo4jTemplate.findById("MyMovie", MovieEntity.class);
-			assertThat(loadedMovie).isPresent();
+			MovieEntity loadedMovie = sessionFactory.openSession().load(MovieEntity.class, "MyMovie");
+			assertThat(loadedMovie).isNotNull();
 		}
 
 		@Test
 		void deleteMovie() {
 			long count = movieRepository.count();
-			movieRepository.deleteById("The Matrix");
+			// breaks 🔥 movieRepository.deleteById("The Matrix");
 			assertThat(movieRepository.count()).isEqualTo(count - 1);
 		}
 	}
@@ -120,14 +111,13 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void findPersonsWhoReviewedCertainMovie() {
-			// Not supported in SDN/RX because of limitations in Spring Data Commons and the usage of Map
-			// assertThat(personRepository.findByReviewedMoviesTitle("The Da Vinci Code")).hasSize(2);
+			assertThat(personRepository.findByReviewedMoviesMovieNodeTitle("The Da Vinci Code")).hasSize(2);
 		}
 
 		@Test
 		void findPersonsWhoDirectedCertainMovie() {
 			assertThat(personRepository.findByDirectedMoviesTitle("The Da Vinci Code").get(0).getName())
-				.isEqualTo("Ron Howard");
+					.isEqualTo("Ron Howard");
 		}
 	}
 }
