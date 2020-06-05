@@ -1,5 +1,15 @@
 package org.neo4j.sdnlegacy;
 
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
+
+import reactor.test.StepVerifier;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,24 +20,13 @@ import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.neo4j.springframework.boot.test.autoconfigure.data.ReactiveDataNeo4jTest;
-import org.neo4j.springframework.data.core.Neo4jTemplate;
+import org.neo4j.springframework.data.core.ReactiveNeo4jTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.test.StepVerifier;
-
-import javax.swing.text.html.Option;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @ReactiveDataNeo4jTest
@@ -36,8 +35,8 @@ class SdnLegacyApplicationTests {
 	@Autowired
 	private Driver driver;
 
-//	@Autowired
-//	private Neo4jTemplate neo4jTemplate;
+	@Autowired
+	private ReactiveNeo4jTemplate neo4jTemplate;
 
 	@Autowired
 	private MovieRepository movieRepository;
@@ -121,12 +120,14 @@ class SdnLegacyApplicationTests {
 		}
 
 		@Test
-		void persistMovie(@Autowired Neo4jTemplate neo4jTemplate) {
+		void persistMovie() {
 			MovieEntity entity = new MovieEntity("MyMovie", "best catchy tagline ever", 2020);
-			movieRepository.save(entity);
 
-			Optional<MovieEntity> loadedMovie = neo4jTemplate.findById("MyMovie", MovieEntity.class);
-			assertThat(loadedMovie).isPresent();
+			StepVerifier.create(
+				movieRepository.save(entity)
+				.then(neo4jTemplate.findById("MyMovie", MovieEntity.class)))
+				.expectNextCount(1)
+				.verifyComplete();
 		}
 
 		@Test
