@@ -1,46 +1,59 @@
 package org.neo4j.sdnlegacy;
 
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.*;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
-import org.neo4j.springframework.boot.test.autoconfigure.data.DataNeo4jTest;
-import org.neo4j.springframework.data.core.Neo4jClient;
+import org.neo4j.springframework.boot.test.autoconfigure.data.ReactiveDataNeo4jTest;
 import org.neo4j.springframework.data.core.Neo4jTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.Neo4jContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.test.StepVerifier;
 
-@DataNeo4jTest
+import javax.swing.text.html.Option;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Testcontainers
+@ReactiveDataNeo4jTest
 class SdnLegacyApplicationTests {
 
 	@Autowired
 	private Driver driver;
 
-	@Autowired
-	private Neo4jClient neo4jClient;
-
-	@Autowired
-	private Neo4jTemplate neo4jTemplate;
+//	@Autowired
+//	private Neo4jTemplate neo4jTemplate;
 
 	@Autowired
 	private MovieRepository movieRepository;
 
 	@Autowired
 	private PersonRepository personRepository;
+
+	@Container
+	private static Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
+
+	@DynamicPropertySource
+	static void neo4jProperties(DynamicPropertyRegistry registry) {
+		registry.add("org.neo4j.driver.uri", neo4jContainer::getBoltUrl);
+		registry.add("org.neo4j.driver.authentication.username", () -> "neo4j");
+		registry.add("org.neo4j.driver.authentication.password", neo4jContainer::getAdminPassword);
+	}
 
 	@BeforeEach
 	void setup() throws IOException {
@@ -59,46 +72,56 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void findsAllMovies() {
-			assertThat(movieRepository.findAll()).hasSizeGreaterThan(30);
+			int expectedMovieCount = 38;
+			StepVerifier.create(movieRepository.findAll())
+					.expectNextCount(expectedMovieCount)
+					.verifyComplete();
 		}
 
 		@Test
 		void findsMovieByTitle() {
-			assertThat(movieRepository.findByTitle("The Matrix")).hasFieldOrPropertyWithValue("title", "The Matrix");
+			StepVerifier.create(movieRepository.findByTitle("The Matrix")).assertNext(movieEntity -> {
+				assertThat(movieEntity.getYearOfRelease()).isEqualTo(1999);
+			}).verifyComplete();
 		}
 
 		@Test
 		void findMoviesByActorsCypherPlaceholder() {
-			assertThat(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+			StepVerifier.create(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem")).assertNext(movieEntity -> {
+				assertThat(movieEntity.getTitle()).isEqualTo("The Matrix");
+			}).verifyComplete();
 		}
 
 		@Test
 		void findMoviesByActorsSpElIndexPlaceholder() {
-			assertThat(movieRepository.findMoviesByActorNameWithSpElIndexPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+			StepVerifier.create(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem")).assertNext(movieEntity -> {
+				assertThat(movieEntity.getTitle()).isEqualTo("The Matrix");
+			}).verifyComplete();
 		}
 
 		@Test
 		void findMoviesByActorsSpElIndexColonPlaceholder() {
-			assertThat(movieRepository.findMoviesByActorNameWithSpElIndexColonPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+			StepVerifier.create(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem")).assertNext(movieEntity -> {
+				assertThat(movieEntity.getTitle()).isEqualTo("The Matrix");
+			}).verifyComplete();
 		}
 
 		@Test
 		void findMoviesByActorsSpElNamedPlaceholder() {
-			assertThat(movieRepository.findMoviesByActorNameWithSpElNamedPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+			StepVerifier.create(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem")).assertNext(movieEntity -> {
+				assertThat(movieEntity.getTitle()).isEqualTo("The Matrix");
+			}).verifyComplete();
 		}
 
 		@Test
 		void findMoviesByActorsSpElSearchObjectPlaceholder() {
-			assertThat(movieRepository.findMoviesByActorNameWithSpElSearchObjectPlaceholder(new Actor("Emil Eifrem")).get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
+			StepVerifier.create(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem")).assertNext(movieEntity -> {
+				assertThat(movieEntity.getTitle()).isEqualTo("The Matrix");
+			}).verifyComplete();
 		}
 
 		@Test
-		void persistMovie() {
+		void persistMovie(@Autowired Neo4jTemplate neo4jTemplate) {
 			MovieEntity entity = new MovieEntity("MyMovie", "best catchy tagline ever", 2020);
 			movieRepository.save(entity);
 
@@ -108,9 +131,10 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void deleteMovie() {
-			long count = movieRepository.count();
-			movieRepository.deleteById("The Matrix");
-			assertThat(movieRepository.count()).isEqualTo(count - 1);
+			int expectedMovieCount = 38;
+			StepVerifier.create(movieRepository.deleteById("The Matrix")).assertNext(movieEntity -> {
+				assertThat(movieRepository.count()).isEqualTo(expectedMovieCount - 1);
+			});
 		}
 	}
 
@@ -126,8 +150,9 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void findPersonsWhoDirectedCertainMovie() {
-			assertThat(personRepository.findByDirectedMoviesTitle("The Da Vinci Code").get(0).getName())
-				.isEqualTo("Ron Howard");
+			StepVerifier.create(personRepository.findByDirectedMoviesTitle("The Da Vinci Code")).assertNext(personEntity -> {
+				assertThat(personEntity.getName()).isEqualTo("Ron Howard");
+			}).verifyComplete();
 		}
 	}
 }
