@@ -1,4 +1,13 @@
-= Migration from SDN/OGM to SDN/RX
+= Migration from SDN/OGM to SDN 6
+
+This project assumes that the given application is based on a Spring Boot version 2.3 or below
+and has the Spring Data Neo4j Spring Boot starter dependency declared:
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-neo4j</artifactId>
+</dependency>
+```
 
 == Features not migrated because we do not consider adapting them
 
@@ -13,13 +22,14 @@ Consider to use https://github.com/michael-simons/neo4j-migrations for even more
 
 * `RelationshipEntity` gets replaced by `RelationshipProperties`
 +
-As a intended consequence a relationship cannot be the access point of a repository or template anymore.
+As an intended consequence a relationship cannot be the access point of a repository or template anymore.
 
 == Detailed migrations
 
 === Dependency
 
-Alter dependencies: Substitute SDN/OGM with SDN/RX
+Update Spring Boot version to 2.4.
+The current version available as of this writing is `2.4.0-M4` that provides Spring Data Neo4j 6 RC2.
 
 === NodeEntity
 
@@ -38,7 +48,11 @@ Correct imports in the entities:
 === RelationshipEntity
 
 Rewrite `RelationshipEntity` to `RelationshipProperty`.
-Put `Map<DomainObject, RelationshipProperty>` as a replacement of the relationship type into the domain class.
+Put `List<RelationshipPropertyAnnotatedClass>` as you would declare a `RelationshipEntity`, but provide a `@TargetNode` information in the class to point to the target entity.
+```
+@TargetNode
+TargetClass targetClass;
+```
 
 == Repositories
 
@@ -46,10 +60,10 @@ Correct imports in repositories of same classes like `Neo4jRepository` / `@Query
 
 === Usage of Neo4j-OGM's `SessionFactory` or `Session`
 
-Replace `SessionFactory` with direct Java driver access, `Neo4jClient` or `Neo4jTemplate`.
+Replace `SessionFactory` with direct Java driver access, or the new abstraction layers `Neo4jClient` or `Neo4jTemplate`.
 
 === _application.properties_
-Use driver starter properties instead of the SDN/Neo4j-OGM properties:
+Use Spring Boot's driver auto configuration properties instead of the SDN/Neo4j-OGM properties:
 
 ```
 # old
@@ -58,13 +72,7 @@ Use driver starter properties instead of the SDN/Neo4j-OGM properties:
 #spring.data.neo4j.password=secret
 
 # new
-org.neo4j.driver.uri=bolt://localhost:7687
-org.neo4j.driver.authentication.username=neo4j
-org.neo4j.driver.authentication.password=secret
+spring.neo4j.uri=neo4j://localhost:7687
+spring.neo4j.authentication.username=neo4j
+spring.neo4j.authentication.password=secret
 ```
-
-== What is missing / limited supported
-
-=== Query for entity with relationship properties' property
-
-This does not work due to the fact that we end up with a `Map` and cannot make the framework focus on the key type in this case.
