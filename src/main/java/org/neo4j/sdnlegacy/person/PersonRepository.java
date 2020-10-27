@@ -1,7 +1,8 @@
 package org.neo4j.sdnlegacy.person;
 
 import reactor.core.publisher.Flux;
-import org.neo4j.springframework.data.repository.ReactiveNeo4jRepository;
+
+import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository;
 
 /**
  * @author Gerrit Meier
