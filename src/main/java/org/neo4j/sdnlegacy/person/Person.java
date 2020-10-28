@@ -20,7 +20,7 @@ public class Person {
 
 	private String name;
 
-	private int born;
+	private Integer born;
 
 	@Relationship("DIRECTED")
 	List<MovieEntity> directedMovies;
@@ -34,14 +34,6 @@ public class Person {
 	@Relationship("PRODUCED")
 	List<MovieEntity> producedMovies;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -50,11 +42,11 @@ public class Person {
 		this.name = name;
 	}
 
-	public int getBorn() {
+	public Integer getBorn() {
 		return born;
 	}
 
-	public void setBorn(int born) {
+	public void setBorn(Integer born) {
 		this.born = born;
 	}
 

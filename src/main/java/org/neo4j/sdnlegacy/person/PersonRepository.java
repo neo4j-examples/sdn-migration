@@ -9,7 +9,7 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository;
  */
 public interface PersonRepository extends ReactiveNeo4jRepository<Person, Long> {
 
-//	List<Person> findByReviewedMoviesMovieNodeTitle(String reviewedMovieTitle);
+	Flux<Person> findByReviewedMoviesMovieEntityTitle(String reviewedMovieTitle);
 
 	Flux<Person> findByDirectedMoviesTitle(String directedMovieTitle);
 }

@@ -1,6 +1,5 @@
 package org.neo4j.sdnlegacy;
 
-import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 
 import reactor.test.StepVerifier;
@@ -19,15 +18,22 @@ import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider;
 import org.springframework.data.neo4j.core.ReactiveNeo4jTemplate;
+import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @DataNeo4jTest
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class SdnLegacyApplicationTests {
 
 	@Autowired
@@ -57,9 +63,14 @@ class SdnLegacyApplicationTests {
 		try (BufferedReader moviesReader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/movies.cypher")));
 			Session session = driver.session()) {
 
-			session.run("MATCH (n) DETACH DELETE n", emptyMap());
-			String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
-			session.run(moviesCypher, emptyMap());
+			session.writeTransaction(tx -> {
+				String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
+
+				tx.run("MATCH (n) DETACH DELETE n");
+				tx.run(moviesCypher);
+				tx.run("MATCH (m:Movie) set m.version = 0");
+				return null;
+			});
 		}
 	}
 
@@ -134,8 +145,9 @@ class SdnLegacyApplicationTests {
 
 	@Test
 	void findPersonsWhoReviewedCertainMovie() {
-		// Not supported in SDN/RX because of limitations in Spring Data Commons and the usage of Map
-		// assertThat(personRepository.findByReviewedMoviesTitle("The Da Vinci Code")).hasSize(2);
+		StepVerifier.create(personRepository.findByReviewedMoviesMovieEntityTitle("The Da Vinci Code"))
+			.expectNextCount(2)
+			.verifyComplete();
 	}
 
 	@Test
@@ -145,4 +157,15 @@ class SdnLegacyApplicationTests {
 		}).verifyComplete();
 	}
 
+	@TestConfiguration(proxyBeanMethods = false)
+	static class Configuration {
+
+		@Bean
+		public ReactiveNeo4jTransactionManager reactiveTransactionManager(Driver driver,
+			ReactiveDatabaseSelectionProvider databaseSelectionProvider) {
+
+			return new ReactiveNeo4jTransactionManager(driver, databaseSelectionProvider);
+		}
+
+	}
 }
