@@ -13,7 +13,9 @@ import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.neo4j.springframework.data.core.Neo4jClient;
 import org.neo4j.springframework.data.core.Neo4jTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +26,8 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@DataNeo4jTest
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class SdnLegacyApplicationTests {
 
 	@Autowired
