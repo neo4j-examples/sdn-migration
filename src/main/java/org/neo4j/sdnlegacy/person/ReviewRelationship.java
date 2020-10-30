@@ -1,6 +1,7 @@
 package org.neo4j.sdnlegacy.person;
 
-import org.neo4j.springframework.data.core.schema.RelationshipProperties;
+
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 
 /**
  * @author Gerrit Meier

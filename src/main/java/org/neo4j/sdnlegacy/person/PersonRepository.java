@@ -1,7 +1,8 @@
 package org.neo4j.sdnlegacy.person;
 
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+
 import java.util.List;
-import org.neo4j.springframework.data.repository.Neo4jRepository;
 
 /**
  * @author Gerrit Meier
