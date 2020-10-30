@@ -150,7 +150,7 @@ class SdnLegacyApplicationTests {
 	static class Configuration {
 
 		@Bean
-		public Neo4jTransactionManager reactiveTransactionManager(Driver driver, DatabaseSelectionProvider databaseSelectionProvider) {
+		public Neo4jTransactionManager transactionManager(Driver driver, DatabaseSelectionProvider databaseSelectionProvider) {
 			return new Neo4jTransactionManager(driver, databaseSelectionProvider);
 		}
 
