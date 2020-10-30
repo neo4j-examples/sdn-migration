@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @DataNeo4jTest
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class SdnLegacyApplicationTests {
 
 	@Autowired
