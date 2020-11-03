@@ -1,6 +1,9 @@
 package org.neo4j.sdnlegacy.person;
 
-import org.neo4j.springframework.data.core.schema.RelationshipProperties;
+
+import org.neo4j.sdnlegacy.movie.MovieEntity;
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
+import org.springframework.data.neo4j.core.schema.TargetNode;
 
 /**
  * @author Gerrit Meier
@@ -11,6 +14,9 @@ public class ReviewRelationship {
 	private String summary;
 
 	private Integer rating;
+
+	@TargetNode
+	private MovieEntity movie;
 
 	public String getSummary() {
 		return summary;
@@ -26,5 +32,13 @@ public class ReviewRelationship {
 
 	public void setRating(Integer rating) {
 		this.rating = rating;
+	}
+
+	public MovieEntity getMovie() {
+		return movie;
+	}
+
+	public void setMovie(MovieEntity movie) {
+		this.movie = movie;
 	}
 }

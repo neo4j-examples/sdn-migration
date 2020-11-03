@@ -1,8 +1,8 @@
 package org.neo4j.sdnlegacy.movie;
 
-import org.neo4j.springframework.data.repository.Neo4jRepository;
-import org.neo4j.springframework.data.repository.query.Query;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.neo4j.repository.query.Query;
 
 import java.util.List;
 
