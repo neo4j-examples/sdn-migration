@@ -1,6 +1,36 @@
-== Migrate SDN/OGM application to SDN/RX and beyond
+= From SDN/OGM to Reactive SDN and beyond
 
-Steps for migration to SDN/RX and a collection of unsupported features or yet missing implementations in migration.adoc.
+== Target audience
 
-Todo next:
-Moving from SDN/RX imperative to SDN/RX reactive.
+If you are a developer working on a
+https://docs.spring.io/spring-data/neo4j/docs/5.4.x/reference/html/#reference[Spring Data Neo4j (5) / OGM (SDN/OGM in short)] application
+and want to upgrade to the https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference[latest Spring Data Neo4j],
+this migration repository is for you.
+
+== Application
+
+The application maps movies and actors from the built-in https://neo4j.com/developer/example-data/#built-in-examples[Neo4j movie dataset].
+
+== Structure
+
+The tip of each of the following branches define the desired state of the application for the correspond migration step.
+Feel free to browse the code in each of these branches to see the code changes that have been made.
+
+[NOTE]
+====
+If you are only interested in the high-level changes that such a migration entails,
+feel free to skip the rest of this documentation and read link:./migration.adoc[this] instead.
+====
+
+ - the "first step" branch, a.k.a. https://github.com/neo4j-examples/sdn-migration/tree/step1_sdn_imperative[`step1_sdn_imperative`],
+contains the initial SDN/OGM application.
+
+ - the "second step" branch, a.k.a. https://github.com/neo4j-examples/sdn-migration/tree/step2_sdnrx_imperative[`step2_sdnrx_imperative`], illustrates
+the upgrade from a typical Spring Data Neo4j / OGM application to the latest Spring Data Neo4j, _without_ reactive support. Most of the existing
+APIs are mapped one-to-one. This is the first recommended step to follow when you start a migration.
+
+- The default branch, a.k.a. https://github.com/neo4j-examples/sdn-migration[`master`], includes the final state of the project.
+The project uses, in that case, the latest Spring Data Neo4j version and relies
+on its https://en.wikipedia.org/wiki/Reactive_programming[reactive programming] support.
+
+
