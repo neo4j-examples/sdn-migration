@@ -1,14 +1,5 @@
 package org.neo4j.sdnlegacy;
 
-import static org.assertj.core.api.Assertions.*;
-
-import reactor.test.StepVerifier;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
@@ -30,6 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @DataNeo4jTest
@@ -49,7 +51,7 @@ class SdnLegacyApplicationTests {
 	private PersonRepository personRepository;
 
 	@Container
-	private static Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
+	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
@@ -137,10 +139,18 @@ class SdnLegacyApplicationTests {
 
 	@Test
 	void deleteMovie() {
-		int expectedMovieCount = 38;
-		StepVerifier.create(movieRepository.deleteById("The Matrix")).assertNext(movieEntity -> {
-			assertThat(movieRepository.count()).isEqualTo(expectedMovieCount - 1);
-		});
+		Mono<Tuple2<Long, Long>> countPublisher = movieRepository.count()
+				.flatMap(oldCount -> movieRepository.deleteById("The Matrix")
+						.then(movieRepository.count())
+						.map(newCount -> Tuples.of(oldCount, newCount)));
+
+		StepVerifier.create(countPublisher)
+				.assertNext(counts -> {
+					final Long oldCount = counts.getT1();
+					final Long newCount = counts.getT2();
+					assertThat(newCount).isEqualTo(oldCount - 1);
+				})
+				.verifyComplete();
 	}
 
 	@Test
