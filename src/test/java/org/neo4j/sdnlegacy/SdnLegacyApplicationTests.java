@@ -1,15 +1,6 @@
 package org.neo4j.sdnlegacy;
 
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.*;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +17,14 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest
@@ -58,6 +57,7 @@ class SdnLegacyApplicationTests {
 			session.query("MATCH (n) DETACH DELETE n", emptyMap());
 			String moviesCypher = moviesReader.lines().collect(Collectors.joining(" "));
 			session.query(moviesCypher, emptyMap());
+			session.query("MATCH (m:Movie) SET m.`version` = 0", emptyMap());
 		}
 	}
 
@@ -115,10 +115,10 @@ class SdnLegacyApplicationTests {
 		}
 
 		@Test
-		@Disabled("to re-enable once we figure out the best way to deal with the optimistic lock issue")
 		void deleteMovie() {
 			long count = movieRepository.count();
 			movieRepository.deleteById("The Matrix");
+
 			assertThat(movieRepository.count()).isEqualTo(count - 1);
 		}
 	}
