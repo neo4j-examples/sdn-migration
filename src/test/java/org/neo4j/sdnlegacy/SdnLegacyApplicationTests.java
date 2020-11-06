@@ -1,6 +1,7 @@
 package org.neo4j.sdnlegacy;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
@@ -13,13 +14,10 @@ import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.neo4j.core.DatabaseSelectionProvider;
-import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.data.neo4j.core.transaction.Neo4jTransactionManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -40,9 +38,6 @@ class SdnLegacyApplicationTests {
 	private Driver driver;
 
 	@Autowired
-	private Neo4jClient neo4jClient;
-
-	@Autowired
 	private Neo4jTemplate neo4jTemplate;
 
 	@Autowired
@@ -52,7 +47,7 @@ class SdnLegacyApplicationTests {
 	private PersonRepository personRepository;
 
 	@Container
-	private static Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
+	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
@@ -134,8 +129,8 @@ class SdnLegacyApplicationTests {
 	}
 
 	@Test
+	@Disabled("Not supported in latest SDN because of limitations in Spring Data Commons and the usage of Map")
 	void findPersonsWhoReviewedCertainMovie() {
-		//Not supported in SDN/RX because of limitations in Spring Data Commons and the usage of Map
 		//assertThat(personRepository.findByReviewedMoviesMovieNodeTitle("The Da Vinci Code")).hasSize(2);
 	}
 
