@@ -22,14 +22,14 @@ If you are only interested in the high-level changes that such a migration entai
 feel free to skip the rest of this documentation and read link:./migration.adoc[this] instead.
 ====
 
- - the "first step" branch, a.k.a. https://github.com/neo4j-examples/sdn-migration/tree/step1_sdn_imperative[`step1_sdn_imperative`],
+ - the "first step" branch, a.k.a. https://github.com/neo4j-examples/sdn-migration/tree/step1_sdn-ogm_imperative[`step1_sdn-ogm_imperative`],
 contains the initial SDN/OGM application.
 
- - the "second step" branch, a.k.a. https://github.com/neo4j-examples/sdn-migration/tree/step2_sdnrx_imperative[`step2_sdnrx_imperative`], illustrates
+ - the "second step" branch, a.k.a. https://github.com/neo4j-examples/sdn-migration/tree/step2_sdn_imperative[`step2_sdn_imperative`], illustrates
 the upgrade from a typical Spring Data Neo4j / OGM application to the latest Spring Data Neo4j, _without_ reactive support. Most of the existing
 APIs are mapped one-to-one. This is the first recommended step to follow when you start a migration.
 
-- The default branch, a.k.a. https://github.com/neo4j-examples/sdn-migration[`master`], includes the final state of the project.
+- The default branch, a.k.a. https://github.com/neo4j-examples/sdn-migration[`main`], includes the final state of the project.
 The project uses, in that case, the latest Spring Data Neo4j version and relies
 on its https://en.wikipedia.org/wiki/Reactive_programming[reactive programming] support.
 
