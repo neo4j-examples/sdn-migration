@@ -70,7 +70,6 @@ class SdnLegacyApplicationTests {
 
 				tx.run("MATCH (n) DETACH DELETE n");
 				tx.run(moviesCypher);
-				tx.run("MATCH (m:Movie) set m.version = 0");
 				return null;
 			});
 		}
