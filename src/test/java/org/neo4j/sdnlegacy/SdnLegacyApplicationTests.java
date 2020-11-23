@@ -167,6 +167,13 @@ class SdnLegacyApplicationTests {
 		}).verifyComplete();
 	}
 
+	@Test
+	void findPersonsWhoActedInCertainMovie() {
+		StepVerifier.create(personRepository.findByActedInMovieTitle("The Da Vinci Code"))
+				.expectNextCount(4)
+				.verifyComplete();
+	}
+
 	@TestConfiguration(proxyBeanMethods = false)
 	static class Configuration {
 
