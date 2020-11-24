@@ -29,6 +29,7 @@ import reactor.util.function.Tuples;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,9 +169,15 @@ class SdnLegacyApplicationTests {
 
 	@Test
 	void findPersonsWhoActedInCertainMovie() {
-		StepVerifier.create(personRepository.findByActedInMovieTitle("The Da Vinci Code"))
-				.expectNextCount(4)
-				.verifyComplete();
+		StepVerifier.create(personRepository.findByActedInMovieTitle("The Da Vinci Code")).assertNext(actedInMovieProjection -> {
+			assertThat(actedInMovieProjection.getName()).isEqualTo("Audrey Tautou");
+		}).assertNext(actedInMovieProjection -> {
+			assertThat(actedInMovieProjection.getName()).isEqualTo("Ian McKellen");
+		}).assertNext(actedInMovieProjection -> {
+			assertThat(actedInMovieProjection.getName()).isEqualTo("Paul Bettany");
+		}).assertNext(actedInMovieProjection -> {
+			assertThat(actedInMovieProjection.getName()).isEqualTo("Tom Hanks");
+		}).verifyComplete();
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)
