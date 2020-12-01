@@ -40,7 +40,7 @@ class SdnLegacyApplicationTests {
 	private SessionFactory sessionFactory;
 
 	@Container
-	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:3.5");
+	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
