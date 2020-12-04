@@ -9,6 +9,7 @@ import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
+import org.neo4j.sdnlegacy.person.ActedInMovieProjection;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
@@ -136,6 +137,24 @@ class SdnLegacyApplicationTests {
 		void findPersonsWhoDirectedCertainMovie() {
 			assertThat(personRepository.findByDirectedMoviesTitle("The Da Vinci Code").get(0).getName())
 					.isEqualTo("Ron Howard");
+		}
+
+		@Test
+		void findPersonsWhoActedInCertainMovie() {
+			assertThat(personRepository.findByActedInMovieTitle("The Da Vinci Code"))
+					.containsExactly(
+							actorInMovie(1976, "Audrey Tautou"),
+							actorInMovie(1939, "Ian McKellen"),
+							actorInMovie(1971, "Paul Bettany"),
+							actorInMovie(1956, "Tom Hanks")
+					);
+		}
+
+		private ActedInMovieProjection actorInMovie(int born, String name) {
+			ActedInMovieProjection result = new ActedInMovieProjection();
+			result.born = born;
+			result.name = name;
+			return result;
 		}
 	}
 }
