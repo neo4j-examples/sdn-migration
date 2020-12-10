@@ -1,11 +1,13 @@
 package org.neo4j.sdnlegacy;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
+import org.neo4j.sdnlegacy.person.ActedInMovieProjection;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
@@ -29,7 +31,6 @@ import reactor.util.function.Tuples;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -169,15 +170,20 @@ class SdnLegacyApplicationTests {
 
 	@Test
 	void findPersonsWhoActedInCertainMovie() {
-		StepVerifier.create(personRepository.findByActedInMovieTitle("The Da Vinci Code")).assertNext(actedInMovieProjection -> {
-			assertThat(actedInMovieProjection.getName()).isEqualTo("Audrey Tautou");
-		}).assertNext(actedInMovieProjection -> {
-			assertThat(actedInMovieProjection.getName()).isEqualTo("Ian McKellen");
-		}).assertNext(actedInMovieProjection -> {
-			assertThat(actedInMovieProjection.getName()).isEqualTo("Paul Bettany");
-		}).assertNext(actedInMovieProjection -> {
-			assertThat(actedInMovieProjection.getName()).isEqualTo("Tom Hanks");
-		}).verifyComplete();
+		StepVerifier.create(personRepository.findByActedInMovieTitle("The Da Vinci Code").buffer(4))
+				.assertNext(results -> assertThat(results)
+						.extracting(ActedInMovieProjection::getBorn, ActedInMovieProjection::getName)
+						.containsExactly(
+								actorInMovie(1976, "Audrey Tautou"),
+								actorInMovie(1939, "Ian McKellen"),
+								actorInMovie(1971, "Paul Bettany"),
+								actorInMovie(1956, "Tom Hanks")
+						))
+				.verifyComplete();
+	}
+
+	private Tuple actorInMovie(int born, String name) {
+		return Tuple.tuple(born, name);
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)
