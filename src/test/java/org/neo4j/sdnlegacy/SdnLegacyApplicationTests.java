@@ -1,5 +1,6 @@
 package org.neo4j.sdnlegacy;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
+import org.neo4j.sdnlegacy.person.ActedInMovieProjection;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
@@ -137,6 +139,22 @@ class SdnLegacyApplicationTests {
 	void findPersonsWhoDirectedCertainMovie() {
 		assertThat(personRepository.findByDirectedMoviesTitle("The Da Vinci Code").get(0).getName())
 				.isEqualTo("Ron Howard");
+	}
+
+	@Test
+	void findPersonsWhoActedInCertainMovie() {
+		assertThat(personRepository.findByActedInMovieTitle("The Da Vinci Code"))
+				.extracting(ActedInMovieProjection::getBorn, ActedInMovieProjection::getName)
+				.containsExactly(
+						actorInMovie(1976, "Audrey Tautou"),
+						actorInMovie(1939, "Ian McKellen"),
+						actorInMovie(1971, "Paul Bettany"),
+						actorInMovie(1956, "Tom Hanks")
+				);
+	}
+
+	private Tuple actorInMovie(int born, String name) {
+		return Tuple.tuple(born, name);
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)
