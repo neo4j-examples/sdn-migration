@@ -16,4 +16,7 @@ public interface PersonRepository extends Neo4jRepository<Person, Long> {
 
 	@Query("MATCH (:Movie {title: $title})<-[:ACTED_IN]-(p:Person) RETURN p.name AS name, p.born AS born ORDER BY p.name")
 	List<ActedInMovieProjection> findByActedInMovieTitle(String title);
+
+	@Query("MATCH (p:Person{name:'Tom Hanks'})-[r:ACTED_IN]->(m:Movie) return p,r,m")
+	List<Person> tomHanksCareer();
 }
