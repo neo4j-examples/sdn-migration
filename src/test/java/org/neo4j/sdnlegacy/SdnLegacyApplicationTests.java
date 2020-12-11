@@ -8,6 +8,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.ActedInMovieProjection;
+import org.neo4j.sdnlegacy.person.Person;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
@@ -31,6 +32,8 @@ import reactor.util.function.Tuples;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -180,6 +183,29 @@ class SdnLegacyApplicationTests {
 								actorInMovie(1956, "Tom Hanks")
 						))
 				.verifyComplete();
+	}
+
+	@Test
+	void tomHanksCareer() {
+		int expectedCount = 12;
+		StepVerifier.create(personRepository.tomHanksCareer().buffer(expectedCount))
+				.assertNext(results -> {
+					assertThat(results)
+							.overridingErrorMessage("Expected Spring Data Neo4j 6 to return as many rows as distinct patterns")
+							.hasSize(expectedCount)
+							.extracting(Person::getName)
+							.containsOnly("Tom Hanks");
+					Set<Integer> hashCodes = collectIdentityHashCodes(results);
+					assertThat(hashCodes)
+							.overridingErrorMessage("Expected Spring Data Neo4j 6.0.2+ to deduplicate instances")
+							.hasSize(1)
+							.containsOnly(hashCodes.iterator().next());
+				})
+				.verifyComplete();
+	}
+
+	private Set<Integer> collectIdentityHashCodes(List<Person> results) {
+		return results.stream().map(System::identityHashCode).collect(Collectors.toSet());
 	}
 
 	private Tuple actorInMovie(int born, String name) {

@@ -16,4 +16,7 @@ public interface PersonRepository extends ReactiveNeo4jRepository<Person, Long> 
 
 	@Query("MATCH (m:Movie {title: $title})-[r:ACTED_IN]-(p:Person) RETURN m, r, p ORDER BY p.name")
 	Flux<ActedInMovieProjection> findByActedInMovieTitle(String title);
+
+	@Query("MATCH (p:Person{name:'Tom Hanks'})-[r:ACTED_IN]->(m:Movie) return p,r,m")
+	Flux<Person> tomHanksCareer();
 }
