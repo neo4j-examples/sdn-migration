@@ -3,6 +3,8 @@ package org.neo4j.sdnlegacy;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
@@ -42,15 +44,6 @@ class SdnLegacyApplicationTests {
 	@Autowired
 	private Driver driver;
 
-	@Autowired
-	private Neo4jTemplate neo4jTemplate;
-
-	@Autowired
-	private MovieRepository movieRepository;
-
-	@Autowired
-	private PersonRepository personRepository;
-
 	@Container
 	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
 
@@ -76,99 +69,115 @@ class SdnLegacyApplicationTests {
 		}
 	}
 
-	@Test
-	void findsAllMovies() {
-		assertThat(movieRepository.findAll()).hasSizeGreaterThan(30);
+	@Nested
+	@DisplayName("Movie Repository")
+	class MovieRepositoryTests {
+
+		@Autowired
+		private MovieRepository movieRepository;
+
+		@Test
+		void findsAllMovies() {
+			assertThat(movieRepository.findAll()).hasSizeGreaterThan(30);
+		}
+
+		@Test
+		void findsMovieByTitle() {
+			assertThat(movieRepository.findByTitle("The Matrix")).hasFieldOrPropertyWithValue("title", "The Matrix");
+		}
+
+		@Test
+		void findMoviesByActorsCypherPlaceholder() {
+			assertThat(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem").get(0))
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
+		}
+
+		@Test
+		void findMoviesByActorsSpElIndexPlaceholder() {
+			assertThat(movieRepository.findMoviesByActorNameWithSpElIndexPlaceholder("Emil Eifrem").get(0))
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
+		}
+
+		@Test
+		void findMoviesByActorsSpElIndexColonPlaceholder() {
+			assertThat(movieRepository.findMoviesByActorNameWithSpElIndexColonPlaceholder("Emil Eifrem").get(0))
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
+		}
+
+		@Test
+		void findMoviesByActorsSpElNamedPlaceholder() {
+			assertThat(movieRepository.findMoviesByActorNameWithSpElNamedPlaceholder("Emil Eifrem").get(0))
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
+		}
+
+		@Test
+		void findMoviesByActorsSpElSearchObjectPlaceholder() {
+			assertThat(movieRepository.findMoviesByActorNameWithSpElSearchObjectPlaceholder(new Actor("Emil Eifrem")).get(0))
+					.hasFieldOrPropertyWithValue("title", "The Matrix");
+		}
+
+		@Test
+		void persistMovie(@Autowired Neo4jTemplate neo4jTemplate) {
+			MovieEntity entity = new MovieEntity("MyMovie", "best catchy tagline ever", 2020);
+			movieRepository.save(entity);
+
+			Optional<MovieEntity> loadedMovie = neo4jTemplate.findById("MyMovie", MovieEntity.class);
+			assertThat(loadedMovie).isPresent();
+		}
+
+		@Test
+		void deleteMovie() {
+			long count = movieRepository.count();
+			movieRepository.deleteById("The Matrix");
+			assertThat(movieRepository.count()).isEqualTo(count - 1);
+		}
 	}
 
-	@Test
-	void findsMovieByTitle() {
-		assertThat(movieRepository.findByTitle("The Matrix")).hasFieldOrPropertyWithValue("title", "The Matrix");
-	}
+	@Nested
+	@DisplayName("Person Repository")
+	class PersonRepositoryTests {
 
-	@Test
-	void findMoviesByActorsCypherPlaceholder() {
-		assertThat(movieRepository.findMoviesByActorNameWithCypherPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
-	}
+		@Autowired
+		private PersonRepository personRepository;
 
-	@Test
-	void findMoviesByActorsSpElIndexPlaceholder() {
-		assertThat(movieRepository.findMoviesByActorNameWithSpElIndexPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
-	}
+		@Test
+		@Disabled("Not supported in latest SDN because of limitations in Spring Data Commons and the usage of Map")
+		void findPersonsWhoReviewedCertainMovie() {
+			//assertThat(personRepository.findByReviewedMoviesMovieNodeTitle("The Da Vinci Code")).hasSize(2);
+		}
 
-	@Test
-	void findMoviesByActorsSpElIndexColonPlaceholder() {
-		assertThat(movieRepository.findMoviesByActorNameWithSpElIndexColonPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
-	}
+		@Test
+		void findPersonsWhoDirectedCertainMovie() {
+			assertThat(personRepository.findByDirectedMoviesTitle("The Da Vinci Code").get(0).getName())
+					.isEqualTo("Ron Howard");
+		}
 
-	@Test
-	void findMoviesByActorsSpElNamedPlaceholder() {
-		assertThat(movieRepository.findMoviesByActorNameWithSpElNamedPlaceholder("Emil Eifrem").get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
-	}
+		@Test
+		void findPersonsWhoActedInCertainMovie() {
+			assertThat(personRepository.findByActedInMovieTitle("The Da Vinci Code"))
+					.extracting(ActedInMovieProjection::getBorn, ActedInMovieProjection::getName)
+					.containsExactly(
+							actorInMovie(1976, "Audrey Tautou"),
+							actorInMovie(1939, "Ian McKellen"),
+							actorInMovie(1971, "Paul Bettany"),
+							actorInMovie(1956, "Tom Hanks")
+					);
+		}
 
-	@Test
-	void findMoviesByActorsSpElSearchObjectPlaceholder() {
-		assertThat(movieRepository.findMoviesByActorNameWithSpElSearchObjectPlaceholder(new Actor("Emil Eifrem")).get(0))
-				.hasFieldOrPropertyWithValue("title", "The Matrix");
-	}
-
-	@Test
-	void persistMovie() {
-		MovieEntity entity = new MovieEntity("MyMovie", "best catchy tagline ever", 2020);
-		movieRepository.save(entity);
-
-		Optional<MovieEntity> loadedMovie = neo4jTemplate.findById("MyMovie", MovieEntity.class);
-		assertThat(loadedMovie).isPresent();
-	}
-
-	@Test
-	void deleteMovie() {
-		long count = movieRepository.count();
-		movieRepository.deleteById("The Matrix");
-		assertThat(movieRepository.count()).isEqualTo(count - 1);
-	}
-
-	@Test
-	@Disabled("Not supported in latest SDN because of limitations in Spring Data Commons and the usage of Map")
-	void findPersonsWhoReviewedCertainMovie() {
-		//assertThat(personRepository.findByReviewedMoviesMovieNodeTitle("The Da Vinci Code")).hasSize(2);
-	}
-
-	@Test
-	void findPersonsWhoDirectedCertainMovie() {
-		assertThat(personRepository.findByDirectedMoviesTitle("The Da Vinci Code").get(0).getName())
-				.isEqualTo("Ron Howard");
-	}
-
-	@Test
-	void findPersonsWhoActedInCertainMovie() {
-		assertThat(personRepository.findByActedInMovieTitle("The Da Vinci Code"))
-				.extracting(ActedInMovieProjection::getBorn, ActedInMovieProjection::getName)
-				.containsExactly(
-						actorInMovie(1976, "Audrey Tautou"),
-						actorInMovie(1939, "Ian McKellen"),
-						actorInMovie(1971, "Paul Bettany"),
-						actorInMovie(1956, "Tom Hanks")
-				);
-	}
-
-	@Test
-	void tomHanksCareer() {
-		List<Person> results = personRepository.tomHanksCareer();
-		assertThat(results)
-				.overridingErrorMessage("Expected Spring Data Neo4j 6 to return as many rows as distinct patterns")
-				.hasSize(12)
-				.extracting(Person::getName)
-				.containsOnly("Tom Hanks");
-		Set<Integer> hashCodes = collectIdentityHashCodes(results);
-		assertThat(hashCodes)
-				.overridingErrorMessage("Expected Spring Data Neo4j 6.0.2+ to deduplicate instances")
-				.hasSize(1)
-				.containsOnly(hashCodes.iterator().next());
+		@Test
+		void tomHanksCareer() {
+			List<Person> results = personRepository.tomHanksCareer();
+			assertThat(results)
+					.overridingErrorMessage("Expected Spring Data Neo4j 6 to return as many rows as distinct patterns")
+					.hasSize(12)
+					.extracting(Person::getName)
+					.containsOnly("Tom Hanks");
+			Set<Integer> hashCodes = collectIdentityHashCodes(results);
+			assertThat(hashCodes)
+					.overridingErrorMessage("Expected Spring Data Neo4j 6.0.2+ to deduplicate instances")
+					.hasSize(1)
+					.containsOnly(hashCodes.iterator().next());
+		}
 	}
 
 	private Set<Integer> collectIdentityHashCodes(List<Person> results) {
