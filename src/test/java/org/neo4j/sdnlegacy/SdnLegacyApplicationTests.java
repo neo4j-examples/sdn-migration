@@ -69,7 +69,7 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void findsAllMovies() {
-			assertThat(movieRepository.findAll()).hasSizeGreaterThan(30);
+			assertThat(movieRepository.findAll()).hasSize(38);
 		}
 
 		@Test
