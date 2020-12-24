@@ -16,11 +16,7 @@ import org.neo4j.sdnlegacy.person.Person;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.neo4j.core.DatabaseSelectionProvider;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
-import org.springframework.data.neo4j.core.transaction.Neo4jTransactionManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.Neo4jContainer;
@@ -186,15 +182,5 @@ class SdnLegacyApplicationTests {
 
 	private Tuple actorInMovie(int born, String name) {
 		return Tuple.tuple(born, name);
-	}
-
-	@TestConfiguration(proxyBeanMethods = false)
-	static class Configuration {
-
-		@Bean
-		public Neo4jTransactionManager transactionManager(Driver driver, DatabaseSelectionProvider databaseSelectionProvider) {
-			return new Neo4jTransactionManager(driver, databaseSelectionProvider);
-		}
-
 	}
 }
