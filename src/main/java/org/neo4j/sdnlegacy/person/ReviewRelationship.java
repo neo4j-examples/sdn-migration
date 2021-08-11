@@ -1,6 +1,8 @@
 package org.neo4j.sdnlegacy.person;
 
 import org.neo4j.sdnlegacy.movie.MovieEntity;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
@@ -9,13 +11,25 @@ import org.springframework.data.neo4j.core.schema.TargetNode;
  */
 @RelationshipProperties
 public class ReviewRelationship {
+	@Id
+	@GeneratedValue
+	private final Long neoId;
 
 	private String summary;
-
 	private Integer rating;
 
 	@TargetNode
 	private MovieEntity movieEntity;
+
+	public ReviewRelationship(Long neoId, String summary, Integer rating) {
+		this.neoId = neoId;
+		this.summary = summary;
+		this.rating = rating;
+	}
+
+	public Long getNeoId() {
+		return neoId;
+	}
 
 	public String getSummary() {
 		return summary;

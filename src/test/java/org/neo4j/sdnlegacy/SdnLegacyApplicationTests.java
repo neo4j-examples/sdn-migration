@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -53,7 +54,9 @@ class SdnLegacyApplicationTests {
 	private PersonRepository personRepository;
 
 	@Container
-	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
+	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.3");
+	//Container for running on arm64 architecture (Apple silicon)
+	//private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>(DockerImageName.parse("neo4j/neo4j-arm64-experimental:4.3.3-arm64").asCompatibleSubstituteFor("neo4j"));
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
