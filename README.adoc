@@ -29,7 +29,7 @@ contains the initial SDN/OGM application.
 the upgrade from a typical Spring Data Neo4j / OGM application to the latest Spring Data Neo4j, _without_ reactive support. Most of the existing
 APIs are mapped one-to-one. This is the first recommended step to follow when you start a migration.
 
-- The default branch, a.k.a. https://github.com/neo4j-examples/sdn-migration[`main`], includes the final state of the project.
+- The "final step" and default branch, a.k.a. https://github.com/neo4j-examples/sdn-migration[`step3_sdn_reactive`], includes the final state of the project.
 The project uses, in that case, the latest Spring Data Neo4j version and relies
 on its https://en.wikipedia.org/wiki/Reactive_programming[reactive programming] support.
 
