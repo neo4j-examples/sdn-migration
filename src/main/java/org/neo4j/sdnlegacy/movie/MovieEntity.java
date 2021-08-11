@@ -10,7 +10,6 @@ import org.springframework.data.annotation.Version;
  */
 @Node("Movie")
 public class MovieEntity {
-
 	@Id
 	private String title;
 
