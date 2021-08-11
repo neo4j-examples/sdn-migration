@@ -42,9 +42,9 @@ class SdnLegacyApplicationTests {
 	private Driver driver;
 
 	@Container
-//	private static Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
+	private static Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.3");
 	//Container for running on arm64 architecture (Apple silicon)
-	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>(DockerImageName.parse("neo4j/neo4j-arm64-experimental:4.3.3-arm64").asCompatibleSubstituteFor("neo4j"));
+	//private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>(DockerImageName.parse("neo4j/neo4j-arm64-experimental:4.3.3-arm64").asCompatibleSubstituteFor("neo4j"));
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
