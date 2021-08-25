@@ -10,6 +10,7 @@ import org.neo4j.sdnlegacy.movie.Actor;
 import org.neo4j.sdnlegacy.movie.MovieEntity;
 import org.neo4j.sdnlegacy.movie.MovieRepository;
 import org.neo4j.sdnlegacy.person.ActedInMovieProjection;
+import org.neo4j.sdnlegacy.person.Person;
 import org.neo4j.sdnlegacy.person.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
@@ -70,7 +71,7 @@ class SdnLegacyApplicationTests {
 
 		@Test
 		void findsAllMovies() {
-			assertThat(movieRepository.findAll()).hasSizeGreaterThan(30);
+			assertThat(movieRepository.findAll()).hasSize(38);
 		}
 
 		@Test
@@ -150,6 +151,15 @@ class SdnLegacyApplicationTests {
 							actorInMovie(1971, "Paul Bettany"),
 							actorInMovie(1956, "Tom Hanks")
 					);
+		}
+
+		@Test
+		void tomHanksCareer() {
+			assertThat(personRepository.tomHanksCareer())
+					.overridingErrorMessage("Expected Spring Data Neo4j/OGM to resolve the returned subgraph to a single node entity")
+					.hasSize(1)
+					.extracting(Person::getName)
+					.containsOnly("Tom Hanks");
 		}
 
 		private ActedInMovieProjection actorInMovie(int born, String name) {
