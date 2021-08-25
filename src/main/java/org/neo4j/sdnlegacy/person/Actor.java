@@ -1,4 +1,4 @@
-package org.neo4j.sdnlegacy.movie;
+package org.neo4j.sdnlegacy.person;
 
 import java.util.Collections;
 import java.util.Set;

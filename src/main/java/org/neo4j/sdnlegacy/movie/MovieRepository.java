@@ -1,5 +1,6 @@
 package org.neo4j.sdnlegacy.movie;
 
+import org.neo4j.sdnlegacy.person.Actor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

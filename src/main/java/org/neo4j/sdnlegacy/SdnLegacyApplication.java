@@ -3,7 +3,7 @@ package org.neo4j.sdnlegacy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.neo4j.sdnlegacy.movie.Actor;
+import org.neo4j.sdnlegacy.person.Actor;
 import org.neo4j.sdnlegacy.movie.Tagline;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
