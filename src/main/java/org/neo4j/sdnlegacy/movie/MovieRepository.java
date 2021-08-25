@@ -1,5 +1,6 @@
 package org.neo4j.sdnlegacy.movie;
 
+import org.neo4j.sdnlegacy.person.Actor;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.neo4j.repository.query.Query;
