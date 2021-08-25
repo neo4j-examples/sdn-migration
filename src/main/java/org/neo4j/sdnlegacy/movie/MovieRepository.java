@@ -2,6 +2,7 @@ package org.neo4j.sdnlegacy.movie;
 
 import java.util.List;
 
+import org.neo4j.sdnlegacy.person.Actor;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.repository.query.Param;
