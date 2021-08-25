@@ -42,6 +42,8 @@ class SdnLegacyApplicationTests {
 
 	@Container
 	private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.0");
+	//Container for running on arm64 architecture (Apple silicon)
+	//private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>(DockerImageName.parse("neo4j/neo4j-arm64-experimental:4.0.0-arm64").asCompatibleSubstituteFor("neo4j"));
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
