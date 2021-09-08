@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface PersonRepository extends Neo4jRepository<Person, Long> {
 
-    //List<Person> findByReviewedMoviesMovieNodeTitle(String reviewedMovieTitle);
+    List<Person> findByReviewedMoviesMovieTitle(String reviewedMovieTitle);
 
     List<Person> findByDirectedMoviesTitle(String directedMovieTitle);
 

@@ -22,6 +22,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,7 +44,7 @@ class SdnLegacyApplicationTests {
 	@Container
 	private static Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>("neo4j:4.3");
 	//Container for running on arm64 architecture (Apple silicon)
-	//private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>(DockerImageName.parse("neo4j/neo4j-arm64-experimental:4.3.3-arm64").asCompatibleSubstituteFor("neo4j"));
+    //private static final Neo4jContainer<?> neo4jContainer = new Neo4jContainer<>(DockerImageName.parse("neo4j/neo4j-arm64-experimental:4.3.3-arm64").asCompatibleSubstituteFor("neo4j"));
 
 	@DynamicPropertySource
 	static void neo4jProperties(DynamicPropertyRegistry registry) {
@@ -139,9 +140,8 @@ class SdnLegacyApplicationTests {
 		private PersonRepository personRepository;
 
 		@Test
-		@Disabled("Not supported in latest SDN because of limitations in Spring Data Commons and the usage of Map")
 		void findPersonsWhoReviewedCertainMovie() {
-			//assertThat(personRepository.findByReviewedMoviesMovieNodeTitle("The Da Vinci Code")).hasSize(2);
+			assertThat(personRepository.findByReviewedMoviesMovieTitle("The Da Vinci Code")).hasSize(2);
 		}
 
 		@Test
